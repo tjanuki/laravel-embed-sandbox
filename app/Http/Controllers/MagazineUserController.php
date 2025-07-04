@@ -90,4 +90,35 @@ class MagazineUserController extends Controller
         return redirect()->route('magazine-users.index')
             ->with('success', 'Magazine user deleted successfully.');
     }
+
+    /**
+     * Store a newly created resource via public API.
+     */
+    public function apiStore(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:magazine_users,email',
+            ]);
+
+            MagazineUser::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully subscribed to magazine!'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing your request'
+            ], 500);
+        }
+    }
 }

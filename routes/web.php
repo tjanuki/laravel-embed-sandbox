@@ -16,5 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('magazine-users', MagazineUserController::class);
 });
 
+// Public API endpoint for magazine user submissions
+Route::post('/api/magazine-users', [MagazineUserController::class, 'apiStore']);
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

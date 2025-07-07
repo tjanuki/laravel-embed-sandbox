@@ -1,7 +1,7 @@
 (function() {
     // Configuration options
     const config = {
-        apiUrl: 'http://laravel-embed-sandbox.test/api/magazine-users',
+        apiUrl: '{{ $apiUrl }}',
         containerId: 'magazine-subscription-form',
         primaryColor: '#3b82f6',
         successColor: '#10b981',
@@ -13,6 +13,16 @@
     // Override config with window.MagazineEmbedConfig if provided
     if (window.MagazineEmbedConfig) {
         Object.assign(config, window.MagazineEmbedConfig);
+    }
+
+    // Override config with data attributes if provided
+    const container = document.getElementById(config.containerId);
+    if (container) {
+        if (container.dataset.primaryColor) config.primaryColor = container.dataset.primaryColor;
+        if (container.dataset.successColor) config.successColor = container.dataset.successColor;
+        if (container.dataset.errorColor) config.errorColor = container.dataset.errorColor;
+        if (container.dataset.borderRadius) config.borderRadius = container.dataset.borderRadius;
+        if (container.dataset.fontFamily) config.fontFamily = container.dataset.fontFamily;
     }
 
     // Create form HTML

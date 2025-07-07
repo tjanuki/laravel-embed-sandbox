@@ -48,21 +48,18 @@ const embedCode = ref('');
 const generateEmbedCode = () => {
     const baseUrl = window.location.origin;
     embedCode.value = `<!-- Magazine Subscription Form Widget -->
-<div id="magazine-subscription-form"></div>
-<script>
-// Optional: Configure the widget appearance
-window.MagazineEmbedConfig = {
-    primaryColor: '#3b82f6',
-    successColor: '#10b981',
-    errorColor: '#ef4444',
-    borderRadius: '8px',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-};
-<\/script>
+<div id="magazine-subscription-form"
+     data-primary-color="#3b82f6"
+     data-success-color="#10b981"
+     data-error-color="#ef4444"
+     data-border-radius="8px"
+     data-font-family="system-ui, -apple-system, sans-serif">
+</div>
 <script src="${baseUrl}/js/magazine-embed.js"><\/script>
 <!-- End Magazine Subscription Form Widget -->`;
     showEmbedCode.value = true;
 };
+
 
 const copyEmbedCode = async () => {
     try {
@@ -73,6 +70,7 @@ const copyEmbedCode = async () => {
         alert('Failed to copy embed code. Please copy manually.');
     }
 };
+
 </script>
 
 <template>
@@ -93,7 +91,7 @@ const copyEmbedCode = async () => {
                         <p class="text-sm text-gray-600 dark:text-gray-400">
                             Generate an embed code to add a magazine subscription form to any external website.
                         </p>
-                        
+
                         <div class="flex gap-2">
                             <Button @click="generateEmbedCode">
                                 <CodeIcon class="h-4 w-4 mr-2" />
@@ -104,25 +102,26 @@ const copyEmbedCode = async () => {
                                 Copy Code
                             </Button>
                         </div>
-                        
+
                         <div v-if="showEmbedCode" class="space-y-2">
                             <label class="text-sm font-medium">Embed Code (Copy and paste into your website):</label>
                             <textarea
                                 :value="embedCode"
                                 readonly
                                 class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-sm font-mono resize-none"
-                                @click="$event.target.select()"
+                                @click="$event.target && $event.target.select()"
                             />
                             <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                                 <p>• This code creates a responsive subscription form</p>
-                                <p>• You can customize colors and styling by modifying the MagazineEmbedConfig object</p>
+                                <p>• You can customize colors and styling by modifying the data attributes</p>
                                 <p>• The form will automatically submit to your application's API</p>
                             </div>
                         </div>
+
                     </div>
                 </CardContent>
             </Card>
-            
+
             <!-- Magazine Users Table Card -->
             <Card>
                 <CardHeader class="flex flex-row items-center justify-between">

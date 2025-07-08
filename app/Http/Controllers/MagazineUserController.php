@@ -107,18 +107,34 @@ class MagazineUserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully subscribed to magazine!'
-            ]);
+            ])->header('Access-Control-Allow-Origin', '*')
+              ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+              ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
-            ], 422);
+            ], 422)->header('Access-Control-Allow-Origin', '*')
+                    ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                    ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing your request'
-            ], 500);
+            ], 500)->header('Access-Control-Allow-Origin', '*')
+                    ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                    ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         }
+    }
+
+    /**
+     * Show the iframe embed form.
+     */
+    public function embedIframe(Request $request)
+    {
+        return view('embed.iframe', [
+            'apiUrl' => $request->getSchemeAndHttpHost() . '/api/magazine-users'
+        ]);
     }
 }

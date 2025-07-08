@@ -44,10 +44,23 @@ const deleteMagazineUser = (id: number) => {
 
 const showEmbedCode = ref(false);
 const embedCode = ref('');
+const embedType = ref('widget'); // 'widget' or 'iframe'
 
 const generateEmbedCode = () => {
     const baseUrl = window.location.origin;
-    embedCode.value = `<!-- Magazine Subscription Form Widget -->
+    
+    if (embedType.value === 'iframe') {
+        embedCode.value = `<!-- Magazine Subscription Form Iframe -->
+<iframe src="${baseUrl}/embed/magazine-subscription"
+        width="100%"
+        height="400"
+        frameborder="0"
+        style="border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+        title="Magazine Subscription Form">
+</iframe>
+<!-- End Magazine Subscription Form Iframe -->`;
+    } else {
+        embedCode.value = `<!-- Magazine Subscription Form Widget -->
 <div id="magazine-subscription-form"
      data-primary-color="#3b82f6"
      data-success-color="#10b981"
@@ -57,6 +70,8 @@ const generateEmbedCode = () => {
 </div>
 <script src="${baseUrl}/js/magazine-embed.js"><\/script>
 <!-- End Magazine Subscription Form Widget -->`;
+    }
+    
     showEmbedCode.value = true;
 };
 
@@ -92,15 +107,41 @@ const copyEmbedCode = async () => {
                             Generate an embed code to add a magazine subscription form to any external website.
                         </p>
 
-                        <div class="flex gap-2">
-                            <Button @click="generateEmbedCode">
-                                <CodeIcon class="h-4 w-4 mr-2" />
-                                Generate Embed Code
-                            </Button>
-                            <Button v-if="showEmbedCode" @click="copyEmbedCode" variant="outline">
-                                <CopyIcon class="h-4 w-4 mr-2" />
-                                Copy Code
-                            </Button>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm font-medium">Embed Type:</label>
+                                <div class="flex gap-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            v-model="embedType"
+                                            value="widget"
+                                            class="text-blue-600"
+                                        />
+                                        <span class="text-sm">Widget</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            v-model="embedType"
+                                            value="iframe"
+                                            class="text-blue-600"
+                                        />
+                                        <span class="text-sm">Iframe</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <Button @click="generateEmbedCode">
+                                    <CodeIcon class="h-4 w-4 mr-2" />
+                                    Generate Embed Code
+                                </Button>
+                                <Button v-if="showEmbedCode" @click="copyEmbedCode" variant="outline">
+                                    <CopyIcon class="h-4 w-4 mr-2" />
+                                    Copy Code
+                                </Button>
+                            </div>
                         </div>
 
                         <div v-if="showEmbedCode" class="space-y-2">
@@ -112,8 +153,10 @@ const copyEmbedCode = async () => {
                                 @click="$event.target && $event.target.select()"
                             />
                             <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                                <p>• This code creates a responsive subscription form</p>
-                                <p>• You can customize colors and styling by modifying the data attributes</p>
+                                <p v-if="embedType === 'widget'">• This code creates a responsive subscription form</p>
+                                <p v-if="embedType === 'widget'">• You can customize colors and styling by modifying the data attributes</p>
+                                <p v-if="embedType === 'iframe'">• This iframe provides a secure, isolated subscription form</p>
+                                <p v-if="embedType === 'iframe'">• You can adjust the width and height attributes as needed</p>
                                 <p>• The form will automatically submit to your application's API</p>
                             </div>
                         </div>

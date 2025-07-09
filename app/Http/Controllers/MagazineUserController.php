@@ -100,9 +100,22 @@ class MagazineUserController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|max:255|unique:magazine_users,email',
+                'source_data' => 'nullable|array',
             ]);
 
-            MagazineUser::create($validated);
+            // Extract source tracking data from request
+            $sourceData = $this->extractSourceData($request);
+            
+            // Merge with any source data provided in the request
+            if (isset($validated['source_data'])) {
+                $sourceData = array_merge($sourceData, $validated['source_data']);
+            }
+
+            MagazineUser::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'source_data' => $sourceData,
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -136,5 +149,38 @@ class MagazineUserController extends Controller
         return view('embed.iframe', [
             'apiUrl' => $request->getSchemeAndHttpHost() . '/api/magazine-users'
         ]);
+    }
+
+    /**
+     * Extract source tracking data from the request.
+     */
+    private function extractSourceData(Request $request): array
+    {
+        $sourceData = [];
+
+        // Extract referrer information
+        $referrer = $request->header('Referer') ?? $request->header('Referrer');
+        if ($referrer) {
+            $parsedUrl = parse_url($referrer);
+            $sourceData['website'] = $parsedUrl['host'] ?? null;
+            $sourceData['url'] = $referrer;
+        }
+
+        // Extract user agent
+        $userAgent = $request->header('User-Agent');
+        if ($userAgent) {
+            $sourceData['user_agent'] = $userAgent;
+        }
+
+        // Extract IP address
+        $ipAddress = $request->ip();
+        if ($ipAddress) {
+            $sourceData['ip_address'] = $ipAddress;
+        }
+
+        // Add timestamp
+        $sourceData['timestamp'] = now()->toISOString();
+
+        return $sourceData;
     }
 }

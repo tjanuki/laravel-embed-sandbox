@@ -160,6 +160,15 @@
         
         hideMessage();
         
+        // Collect source tracking data
+        const sourceData = {
+            embed_type: 'widget',
+            website: window.location.hostname,
+            url: window.location.href,
+            referrer: document.referrer || null,
+            timestamp: new Date().toISOString()
+        };
+        
         try {
             const response = await fetch(config.apiUrl, {
                 method: 'POST',
@@ -169,7 +178,8 @@
                 },
                 body: JSON.stringify({
                     name: nameInput.value,
-                    email: emailInput.value
+                    email: emailInput.value,
+                    source_data: sourceData
                 })
             });
             

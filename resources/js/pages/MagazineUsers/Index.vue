@@ -11,6 +11,15 @@ interface MagazineUser {
     id: number;
     name: string;
     email: string;
+    source_data?: {
+        website?: string;
+        url?: string;
+        embed_type?: string;
+        referrer?: string;
+        user_agent?: string;
+        ip_address?: string;
+        timestamp?: string;
+    };
     created_at: string;
     updated_at: string;
 }
@@ -18,8 +27,15 @@ interface MagazineUser {
 interface Props {
     magazineUsers: {
         data: MagazineUser[];
-        links: any[];
-        meta: any;
+        links?: any[];
+        meta?: {
+            total?: number;
+            current_page?: number;
+            per_page?: number;
+            last_page?: number;
+            from?: number;
+            to?: number;
+        };
     };
 }
 
@@ -84,6 +100,26 @@ const copyEmbedCode = async () => {
         console.error('Failed to copy: ', err);
         alert('Failed to copy embed code. Please copy manually.');
     }
+};
+
+const getEmbedTypeCount = (type: string) => {
+    return props.magazineUsers.data.filter(user => 
+        user.source_data && user.source_data.embed_type === type
+    ).length;
+};
+
+const getTopSourceWebsites = () => {
+    const websiteStats = props.magazineUsers.data.reduce((acc, user) => {
+        if (user.source_data && user.source_data.website) {
+            const website = user.source_data.website;
+            acc[website] = (acc[website] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(websiteStats)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
 };
 
 </script>
@@ -165,6 +201,59 @@ const copyEmbedCode = async () => {
                 </CardContent>
             </Card>
 
+            <!-- Analytics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="text-sm font-medium">Total Subscriptions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold">{{ props.magazineUsers.meta?.total || props.magazineUsers.data.length }}</div>
+                        <p class="text-xs text-gray-500">All time</p>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="text-sm font-medium">Widget Subscriptions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold">{{ getEmbedTypeCount('widget') }}</div>
+                        <p class="text-xs text-gray-500">Via embed widget</p>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="text-sm font-medium">Iframe Subscriptions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="text-2xl font-bold">{{ getEmbedTypeCount('iframe') }}</div>
+                        <p class="text-xs text-gray-500">Via iframe embed</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <!-- Top Source Websites Card -->
+            <Card v-if="getTopSourceWebsites().length > 0">
+                <CardHeader>
+                    <CardTitle>Top Source Websites</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div class="space-y-2">
+                        <div v-for="(website, index) in getTopSourceWebsites().slice(0, 5)" :key="index" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium">{{ website.name }}</span>
+                                <span class="text-xs text-gray-500">({{ website.count }} subscribers)</span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ Math.round((website.count / (props.magazineUsers.meta?.total || props.magazineUsers.data.length)) * 100) }}%
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             <!-- Magazine Users Table Card -->
             <Card>
                 <CardHeader class="flex flex-row items-center justify-between">
@@ -183,6 +272,8 @@ const copyEmbedCode = async () => {
                                 <tr class="bg-gray-50 dark:bg-gray-800">
                                     <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Name</th>
                                     <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Email</th>
+                                    <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Source Website</th>
+                                    <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Embed Type</th>
                                     <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Created At</th>
                                     <th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left">Actions</th>
                                 </tr>
@@ -191,6 +282,21 @@ const copyEmbedCode = async () => {
                                 <tr v-for="user in props.magazineUsers.data" :key="user.id">
                                     <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">{{ user.name }}</td>
                                     <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">{{ user.email }}</td>
+                                    <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">
+                                        <span v-if="user.source_data && user.source_data.website" class="text-sm">
+                                            {{ user.source_data.website }}
+                                        </span>
+                                        <span v-else class="text-sm text-gray-500 italic">Direct</span>
+                                    </td>
+                                    <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">
+                                        <span v-if="user.source_data && user.source_data.embed_type" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="{
+                                            'bg-blue-100 text-blue-800': user.source_data.embed_type === 'widget',
+                                            'bg-purple-100 text-purple-800': user.source_data.embed_type === 'iframe'
+                                        }">
+                                            {{ user.source_data.embed_type }}
+                                        </span>
+                                        <span v-else class="text-sm text-gray-500 italic">Manual</span>
+                                    </td>
                                     <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">{{ new Date(user.created_at).toLocaleDateString() }}</td>
                                     <td class="border border-gray-200 dark:border-gray-700 px-4 py-2">
                                         <div class="flex gap-2">

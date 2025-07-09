@@ -10,6 +10,15 @@ interface MagazineUser {
     id: number;
     name: string;
     email: string;
+    source_data?: {
+        website?: string;
+        url?: string;
+        embed_type?: string;
+        referrer?: string;
+        user_agent?: string;
+        ip_address?: string;
+        timestamp?: string;
+    };
     created_at: string;
     updated_at: string;
 }
@@ -86,6 +95,50 @@ const deleteMagazineUser = () => {
                         <div>
                             <h3 class="font-semibold text-gray-900 dark:text-gray-100">Updated At</h3>
                             <p class="text-gray-600 dark:text-gray-400">{{ new Date(props.magazineUser.updated_at).toLocaleDateString() }}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Source Information Card -->
+            <Card v-if="props.magazineUser.source_data">
+                <CardHeader>
+                    <CardTitle>Source Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-if="props.magazineUser.source_data.website">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Source Website</h3>
+                            <p class="text-gray-600 dark:text-gray-400">{{ props.magazineUser.source_data.website }}</p>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.embed_type">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Embed Type</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="{
+                                'bg-blue-100 text-blue-800': props.magazineUser.source_data.embed_type === 'widget',
+                                'bg-purple-100 text-purple-800': props.magazineUser.source_data.embed_type === 'iframe'
+                            }">
+                                {{ props.magazineUser.source_data.embed_type }}
+                            </span>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.url" class="md:col-span-2">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Source URL</h3>
+                            <p class="text-gray-600 dark:text-gray-400 break-all">{{ props.magazineUser.source_data.url }}</p>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.referrer" class="md:col-span-2">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Referrer</h3>
+                            <p class="text-gray-600 dark:text-gray-400 break-all">{{ props.magazineUser.source_data.referrer }}</p>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.ip_address">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">IP Address</h3>
+                            <p class="text-gray-600 dark:text-gray-400">{{ props.magazineUser.source_data.ip_address }}</p>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.timestamp">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Subscription Time</h3>
+                            <p class="text-gray-600 dark:text-gray-400">{{ new Date(props.magazineUser.source_data.timestamp).toLocaleString() }}</p>
+                        </div>
+                        <div v-if="props.magazineUser.source_data.user_agent" class="md:col-span-2">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">User Agent</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm break-all">{{ props.magazineUser.source_data.user_agent }}</p>
                         </div>
                     </div>
                 </CardContent>

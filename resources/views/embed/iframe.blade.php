@@ -170,6 +170,24 @@
             
             hideMessage();
             
+            // Collect source tracking data for iframe
+            const sourceData = {
+                embed_type: 'iframe',
+                referrer: document.referrer || null,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Try to get parent window information (may be blocked by CORS)
+            try {
+                if (window.parent && window.parent !== window) {
+                    sourceData.website = window.parent.location.hostname;
+                    sourceData.url = window.parent.location.href;
+                }
+            } catch (e) {
+                // If blocked by CORS, we'll rely on the referrer header on the server side
+                console.log('Parent window access blocked by CORS, using referrer header instead');
+            }
+            
             try {
                 const response = await fetch('{{ $apiUrl }}', {
                     method: 'POST',
@@ -179,7 +197,8 @@
                     },
                     body: JSON.stringify({
                         name: nameInput.value,
-                        email: emailInput.value
+                        email: emailInput.value,
+                        source_data: sourceData
                     })
                 });
                 

@@ -85,6 +85,7 @@ const generateEmbedCode = () => {
      data-font-family="system-ui, -apple-system, sans-serif">
 </div>
 <script src="${baseUrl}/js/magazine-embed.js"><\/script>
+<script src="${baseUrl}/js/magazine-embed-fallback.js"><\/script>
 <!-- End Magazine Subscription Form Widget -->`;
     }
     

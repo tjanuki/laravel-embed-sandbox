@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('magazine_users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email');
+            $table->string('email')->unique();
+            $table->json('source_data')->nullable();
             $table->timestamps();
+            
+            $table->index('email');
+            $table->index('created_at');
         });
     }
 
